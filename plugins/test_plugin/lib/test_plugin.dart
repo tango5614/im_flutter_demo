@@ -10,6 +10,7 @@ class TestPlugin {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
   static Future<String> callMethod(String name) async {
     final String res = await _channel.invokeMethod(name);
     return res;
