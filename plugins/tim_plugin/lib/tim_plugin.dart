@@ -1,68 +1,57 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-
-class LogLevel {
-  static const none = 0;
-  static const debug = 3;
-  static const info = 4;
-  static const warn = 5;
-  static const error = 6;
-}
-
-class TIMMessage {
-  int addElem(TIMElement elem) {
-
-  }
-}
-
-class TIMElement {
-}
-
-class TIMConversationType {
-  /**
-   *  C2C 类型
-   */
-  static const TIM_C2C = 1;
-
-  /**
-   *  群聊 类型
-   */
-  static const TIM_GROUP = 2;
-
-  /**
-   *  系统消息
-   */
-  static const TIM_SYSTEM = 3;
-}
+import './types.dart';
 
 class TimPlugin {
   static const MethodChannel _channel = const MethodChannel('tim_plugin');
 
-  static const EventChannel _eventChannel =
-  const EventChannel("tim_plugin_event");
+  static const EventChannel _eventChannel = const EventChannel("tim_plugin_event");
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
 
-  static Future<void> initSdk(int appId, String accountType,
-      {bool disableLogPrint, LogLevel logLevel, String logPath}) async {
-
+  static Future<String> initSdk(int appId, String accountType,
+      {bool disableLogPrint, int logLevel, String logPath}) async {
+    var params = <String, dynamic> {
+      'appId': appId,
+      'accountType': accountType
+    };
+    if (disableLogPrint != null) {
+      params['disableLogPrint'] = disableLogPrint;
+    }
+    if (logLevel != null) {
+      params['logLevel'] = logLevel;
+    }
+    if (logPath != null) {
+      params['logPath'] = logPath;
+    }
+    return await _channel.invokeMethod('initSdk', params);
   }
 
-  static Future<void> login(String indentifier, String userSig,
-      String appidAt3rd) async {
-
+  static Future<void> login(String identifier, String userSig,
+  {String appidAt3rd}) async {
+    var params = <String, String> {
+      'identifier': identifier,
+      'userSig': userSig,
+      'appidAt3rd': appidAt3rd
+    };
+    return await _channel.invokeMethod('login', params);
   }
 
   static Future<void> logout() async {
-
+    return await _channel.invokeMethod('logout');
   }
 
   static Future<void> sendMessage(TIMMessage message, TIMConversationType type, String receiver) async {
-
+    final params = {
+      'message': message.getParameterList(),
+      'type': type,
+      'receiver': receiver,
+    };
+    return await _channel.invokeMethod('sendMessage', params);
   }
 
   static Future<void> addMessageListener() async {
@@ -70,7 +59,7 @@ class TimPlugin {
   }
 
   static Future<void> createGroup(List<String> members, String name) async {
-    
+
   }
 /**
  * initSdk

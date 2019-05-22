@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_plugin/test_plugin.dart';
+import 'package:tim_plugin/tim_plugin.dart';
 import 'package:wechat/wechat.dart';
 import 'package:flutter/services.dart';
 
@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   void _incrementCounter() async {
     try {
-      final test =  await TestPlugin.callMethod("error");
+      await TimPlugin.initSdk(1400213425, '36862', logLevel: LogLevel.debug, disableLogPrint: false);
     } on PlatformException catch (e) {
       print(e.code);
       print(e.message);

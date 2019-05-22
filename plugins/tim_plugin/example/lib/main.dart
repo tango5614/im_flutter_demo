@@ -25,7 +25,8 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await TimPlugin.platformVersion;
+      var res = await TimPlugin.initSdk(1400213425, '36862', disableLogPrint: true, logLevel: LogLevel.debug);
+      print("initial finished ${res}");
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }

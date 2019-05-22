@@ -4,31 +4,22 @@ PODS:
     - Flutter
     - TXIMSDK_iOS
   - TXIMSDK_iOS (4.3.118)
-  - wechat (0.0.5):
-    - Flutter
-    - WechatOpenSDK
-  - WechatOpenSDK (1.8.4)
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
   - tim_plugin (from `.symlinks/plugins/tim_plugin/ios`)
-  - wechat (from `.symlinks/plugins/wechat/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: .symlinks/flutter/ios
   tim_plugin:
     :path: .symlinks/plugins/tim_plugin/ios
-  wechat:
-    :path: .symlinks/plugins/wechat/ios
 
 SPEC CHECKSUMS:
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   tim_plugin: ed369de7f9d39a452fc3779dfdce6ad74e73b358
   TXIMSDK_iOS: c0f04dc26d799b97b2dc02721721b66f4af4b99d
-  wechat: e3093e49b5344e2c14abafe376eeea89265959a7
-  WechatOpenSDK: 9b721089507c895d05f997408c30bb6e6f5f9b60
 
-PODFILE CHECKSUM: ebf6aadfb7ff51f03e66df3ee3058f11951c3c9b
+PODFILE CHECKSUM: eb8e034fd52c638b31d6e50106137c238ec4e879
 
 COCOAPODS: 1.4.0

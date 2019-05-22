@@ -128,10 +128,10 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.4"
-  test_plugin:
+  tim_plugin:
     dependency: "direct main"
     description:
-      path: "plugins/test_plugin"
+      path: "plugins/tim_plugin"
       relative: true
     source: path
     version: "0.0.1"
