@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_plugin/test_plugin.dart';
 
 void main() => runApp(MyApp());
 
@@ -45,8 +46,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
   void _incrementCounter() {
+    TestPlugin.callMethod('login').then((str) {
+      print(str);
+    });
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -59,6 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    TestPlugin.callMethod('init').then((str) {
+      print(str);
+    });
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //

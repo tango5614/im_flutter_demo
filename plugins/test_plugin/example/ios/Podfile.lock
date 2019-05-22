@@ -1,0 +1,25 @@
+PODS:
+  - Flutter (1.0.0)
+  - test_plugin (0.0.1):
+    - Flutter
+    - TXIMSDK_iOS
+  - TXIMSDK_iOS (4.3.118)
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - test_plugin (from `.symlinks/plugins/test_plugin/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: .symlinks/flutter/ios
+  test_plugin:
+    :path: .symlinks/plugins/test_plugin/ios
+
+SPEC CHECKSUMS:
+  Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  test_plugin: a0b9aa6ee008c8d80c38c21e8072f603d79a54a0
+  TXIMSDK_iOS: c0f04dc26d799b97b2dc02721721b66f4af4b99d
+
+PODFILE CHECKSUM: 91faf39d50f6db3c7d84614d77fccd098b65e478
+
+COCOAPODS: 1.4.0
