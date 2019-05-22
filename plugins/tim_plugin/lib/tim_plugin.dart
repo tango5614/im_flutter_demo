@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/services.dart';
-
-import './types.dart';
+part './types.dart';
 
 class TimPlugin {
   static const MethodChannel _channel = const MethodChannel('tim_plugin');
@@ -44,8 +42,7 @@ class TimPlugin {
     return await _channel.invokeMethod('logout');
   }
 
-  static Future<void> sendMessage(
-      TIMMessage message, int type, String receiver) async {
+  static Future<void> sendMessage(TIMMessage message, int type, String receiver) async {
     final params = {
       'message': message.getParameterList(),
       'type': type,
@@ -54,7 +51,9 @@ class TimPlugin {
     return await _channel.invokeMethod('sendMessage', params);
   }
 
-  static Future<void> addMessageListener() async {}
+  static StreamSubscription<dynamic> addMessageListener(Function callback) {
+    return _eventChannel.receiveBroadcastStream().listen(callback);
+  }
 
   static Future<void> createGroup(List<String> members, String name) async {}
 }

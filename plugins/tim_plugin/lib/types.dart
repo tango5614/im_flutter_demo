@@ -1,3 +1,5 @@
+part of tim_plugin;
+
 class LogLevel {
   static const none = 0;
   static const debug = 3;
