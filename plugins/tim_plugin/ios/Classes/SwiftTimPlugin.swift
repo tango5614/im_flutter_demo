@@ -18,6 +18,8 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
         initIM(call: call, result: result)
     case "login":
         login(result: result)
+    case "sendMessage":
+        sendMessage(call: call, result: result)
     default:
         result(FlutterError(code: "no method", message: "no method", details: nil))
     }
@@ -40,19 +42,19 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
                 config.logPath = logPath
             }
             TIMManager.sharedInstance()?.initSdk(config)
-            result(())
+            result(nil)
          }
         result(FlutterError(code: "no argument", message: "no argument", details: nil))
     }
     func login(result: @escaping FlutterResult) {
         let login_param = TIMLoginParam()
-        login_param.identifier = "t_4"
-        login_param.userSig = "eJxlz1FPgzAQwPF3PgXpq0bbo8Vp4oPZZCNhcwTRuJcGaTc7BxToHMz43Y2osYn3*vtfLvfuuK6L7qPkLMvzal8abnotkXvlIoxO-1BrJXhmuNeIfyg7rRrJs7WRzYCEMQYY240SsjRqrX4Kw6mFrXjlw4XvbYoxEI8CsxO1GXB*m47DeFJkYpokXTLrIagjlpWL1It26WEVqJM7fTM7zqF-JhqCKg43j9tl7T-p44PP-CLf1Yuun46D6rxakSXdlgJe9iGBSdxG4bV10qhC-r4zojDyLi8sfZNNq6pyCAATRsDDX4OcD*cTEA9cNA__"
+        login_param.identifier = "t_2"
+        login_param.userSig = "eJxlj8FOhDAURfd8BWGrMW2hDpi4KHUMI5pIZmDBpiHTQjvjQC1VBOO-G1EjiW97zs29791xXdfb3W8vqv2*e2kts6MWnnvlesA7-4NaK84qy3zD-0HxppURrKqtMDOEGGMEwNJRXLRW1erHsAwtYM*PbG74TgcAIOgHCC8V1czwYZ3TTXYjRylpHB-KYU3gKcFhFcGByGFlziJak2LrH8lu0vypJ5smx7eP5ZjRcqWEDA9xQTuZpFMaIZwmWTy1zXMRXGpzl2fXi0qrTuL3nTBAoR8sB70K06uunQUEIIbIB1-nOR-OJ8GXW6c_"
         login_param.appidAt3rd = "1400213425"
         TIMManager.sharedInstance()?.login(login_param, succ: {
             result("succ")
         }, fail: { (code, err) in
-            result("err")
+            result(FlutterError(code: String(code), message: err, details: nil))
         })
     }
     func logout(result: @escaping FlutterResult) {
@@ -61,5 +63,33 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
         }, fail: { (code, str) in
             result(str ?? "fail")
         })
+    }
+    func sendMessage(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if let arg = call.arguments as? NSDictionary {
+            if let message = arg["message"] as? [NSDictionary] {
+                let msg = TIMMessage()
+                for dic in message {
+                    // 文本
+                    if let type = dic["type"] as? Int, type == 0 {
+                        let elem = TIMTextElem()
+                        elem.text = dic["text"] as! String
+                        msg.add(elem)
+                    }
+                    
+                    // 图片
+                    if let type = dic["type"] as? Int, type == 1 {
+                        let elem = TIMImageElem()
+                        elem.path = dic["path"] as! String
+                        msg.add(elem)
+                    }
+                }
+                let receiver = arg["receiver"] as! [String]
+                TIMManager.sharedInstance()?.send(msg, toUsers: receiver, succ: {
+                    result(nil)
+                }, fail: { (code, message, detail) in
+                    result(FlutterError(code: String(code), message: message, details: nil))
+                })
+            }
+        }
     }
 }

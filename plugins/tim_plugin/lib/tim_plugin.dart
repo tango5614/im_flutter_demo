@@ -45,7 +45,7 @@ class TimPlugin {
     return await _channel.invokeMethod('logout');
   }
 
-  static Future<void> sendMessage(TIMMessage message, TIMConversationType type, String receiver) async {
+  static Future<void> sendMessage(TIMMessage message, int type, List<String> receiver) async {
     final params = {
       'message': message.getParameterList(),
       'type': type,
