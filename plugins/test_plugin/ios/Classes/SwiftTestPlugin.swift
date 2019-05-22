@@ -42,5 +42,13 @@ public class SwiftTestPlugin: NSObject, FlutterPlugin {
             result("err")
         })
     }
+    func logout(result: @escaping FlutterResult) {
+        TIMManager.sharedInstance()?.logout({
+            result("sucess")
+        }, fail: { (code, str) in
+            result(str ?? "fail")
+        })
+        TIMManager.sharedInstance()?.getConversation(<#T##type: TIMConversationType##TIMConversationType#>, receiver: <#T##String!#>)
+    }
 }
 

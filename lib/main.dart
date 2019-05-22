@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_plugin/test_plugin.dart';
 import 'package:wechat/wechat.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -47,7 +48,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  void _incrementCounter() {
+  void _incrementCounter() async {
+    try {
+      final test =  await TestPlugin.callMethod("error");
+    } on PlatformException catch (e) {
+      print(e.code);
+      print(e.message);
+      print(e.details);
+    }
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
