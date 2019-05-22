@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tim_plugin/tim_plugin.dart';
-import 'package:wechat/wechat.dart';
 import 'package:flutter/services.dart';
+import 'package:tim_plugin/tim_plugin.dart';
+import 'package:tim_plugin/types.dart';
 
 void main() => runApp(MyApp());
 
@@ -48,9 +48,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
   void _incrementCounter() async {
     try {
-      await TimPlugin.initSdk(1400213425, '36862', logLevel: LogLevel.debug, disableLogPrint: false);
+      await TimPlugin.initSdk(1400213425, '36862',
+          logLevel: LogLevel.debug, disableLogPrint: false);
     } on PlatformException catch (e) {
       print(e.code);
       print(e.message);

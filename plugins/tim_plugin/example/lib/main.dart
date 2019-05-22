@@ -32,9 +32,10 @@ class _MyAppState extends State<MyApp> {
       final elem = TIMTextElement();
       elem.text = 'test';
       message.addElem(elem);
-      await TimPlugin.sendMessage(message, TIMMessageType.text, ['t_4']);
+      await TimPlugin.sendMessage(message, TIMConversationType.TIM_C2C, 't_4');
       print("send success");
     } on PlatformException catch(e) {
+      print('send error:');
       print(e.code);
       print(e.message);
     }
