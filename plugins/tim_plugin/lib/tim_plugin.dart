@@ -16,7 +16,7 @@ class TimPlugin {
   static const EVENT_NAME_NEW_MESSAGE = "event_name_new_message";
 
   static const EventChannel _eventChannel =
-  const EventChannel("tim_plugin_event");
+      const EventChannel("tim_plugin_event");
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -52,8 +52,8 @@ class TimPlugin {
     return await _channel.invokeMethod('logout');
   }
 
-  static Future<void> sendMessage(TIMMessage message, int type,
-      String receiver) async {
+  static Future<void> sendMessage(
+      TIMMessage message, int type, String receiver) async {
     final params = {
       'message': message.getParameterList(),
       'type': type,
@@ -70,16 +70,12 @@ class TimPlugin {
     _channel.invokeMethod("addMessageListener");
     return _eventChannel
         .receiveBroadcastStream()
-        .map((test) {
-          print(test);
-          return new Map<String, dynamic>.from(test);
-        })
+        .map((map) => json.decode(json.encode(map)))
         .where((map) => (map[EVENT_NAME] as String) == EVENT_NAME_NEW_MESSAGE)
         .map((map) =>
-        (map['data']['msg'].cast<List>())
+        (map['data']['msg'] as List)
             ?.map((e) => e == null ? null : TIMMessage.fromJson(e))
             ?.toList());
   }
-
   static Future<void> createGroup(List<String> members, String name) async {}
 }

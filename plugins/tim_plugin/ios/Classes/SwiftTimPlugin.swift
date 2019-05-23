@@ -22,6 +22,8 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
             initIM(call: call, result: result)
         case "login":
             login(call: call, result: result)
+        case "logout":
+            logout(result: result)
         case "sendMessage":
             sendMessage(call: call, result: result)
         case "addMessageListener":
@@ -72,7 +74,7 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
     }
     func logout(result: @escaping FlutterResult) {
         TIMManager.sharedInstance()?.logout({
-            result("sucess")
+            result(nil)
         }, fail: { (code, str) in
             result(str ?? "fail")
         })
@@ -174,7 +176,15 @@ class IMPMessageListener: NSObject, TIMMessageListener {
             dic["data"] = [
                 "msg": msgDicArr
             ]
-            events?(dic)
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: dic, options: .prettyPrinted)
+                // here "jsonData" is the dictionary encoded in JSON data
+                let jsonStr = String(data: jsonData, encoding: .utf8)
+                events?(dic)
+            } catch {
+                print(error.localizedDescription)
+            }
+            
 //            var dic: NSDictionary = ["event_name" : "event_name_new_message"]
 //            var msg: [NSDictionary] = []
 //            for msgItem in msgs {

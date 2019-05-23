@@ -139,7 +139,7 @@ class TIMConversationType {
   static const TIM_SYSTEM = 3;
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: true)
 class TIMImage {
   int type;
   int size;
@@ -147,4 +147,7 @@ class TIMImage {
   int width;
   String url;
   String uuid;
+  factory TIMImage.fromJson(Map<String, dynamic> json) =>
+   _$TIMImageFromJson(json);
+  TIMImage({this.type, this.size, this.height, this.width, this.url, this.uuid});
 }

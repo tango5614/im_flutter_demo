@@ -62,17 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void login(String user, String userSig, {String appidAt3rd}) async {
     try {
       await TimPlugin.login(user, userSig, appidAt3rd: appidAt3rd);
-      final stream = TimPlugin.addMessageListener();
-      MyApp.subscription = stream.listen(_streamHandler);
+
       Navigator.pushNamed(context, '/$user');
     } on PlatformException catch (e) {
       print('code: ${e.code}, message: ${e.message}');
     }
   }
-  void _streamHandler(List<TIMMessage> msgs) {
-    final elem = msgs[0].getElem(0) as TIMTextElement;
-    print(elem.text);
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,6 +145,8 @@ class _ChatPageState extends State<ChatPage> {
   final _controller = TextEditingController();
   Future<void> sendMessage(String text) async {
     final message = TIMMessage();
+    message.isSelf = true;
+    message.identifier = widget.title;
     final elem = TIMTextElement();
     elem.text = text;
     message.addElem(elem);
@@ -162,10 +160,19 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildRow(TIMMessage message) {
+    Color color;
+    if (message.isSelf == null || message.isSelf == true) {
+      color = Colors.green;
+    } else {
+      color = Colors.white;
+    }
     final elem = message.getElem(0) as TIMTextElement;
     return ListTile(
       title: Text(
         elem.text,
+        style: TextStyle(
+          backgroundColor: color,
+        ),
       ),
     );
   }
@@ -214,10 +221,28 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void _streamHandler(List<TIMMessage> msgs) {
+    msgs.forEach((msg) {
+      print(msg.isSelf);
+      setState(() {
+        _msgList.add(msg);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final stream = TimPlugin.addMessageListener();
+    MyApp.subscription = stream.listen(_streamHandler);
+  }
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
     _controller.dispose();
+    TimPlugin.logout();
+    _msgList.removeRange(0, _msgList.length - 1);
   }
 }
