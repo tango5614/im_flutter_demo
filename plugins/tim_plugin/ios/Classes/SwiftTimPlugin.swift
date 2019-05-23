@@ -21,7 +21,7 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
         case "initSdk":
             initIM(call: call, result: result)
         case "login":
-            login(result: result)
+            login(call: call, result: result)
         case "sendMessage":
             sendMessage(call: call, result: result)
         default:
@@ -50,13 +50,20 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
          }
         result(FlutterError(code: "no argument", message: "no argument", details: nil))
     }
-    func login(result: @escaping FlutterResult) {
+    func login(call: FlutterMethodCall, result: @escaping FlutterResult) {
         let login_param = TIMLoginParam()
-        login_param.identifier = "t_2"
-        login_param.userSig = "eJxlj8FOhDAURfd8BWGrMW2hDpi4KHUMI5pIZmDBpiHTQjvjQC1VBOO-G1EjiW97zs29791xXdfb3W8vqv2*e2kts6MWnnvlesA7-4NaK84qy3zD-0HxppURrKqtMDOEGGMEwNJRXLRW1erHsAwtYM*PbG74TgcAIOgHCC8V1czwYZ3TTXYjRylpHB-KYU3gKcFhFcGByGFlziJak2LrH8lu0vypJ5smx7eP5ZjRcqWEDA9xQTuZpFMaIZwmWTy1zXMRXGpzl2fXi0qrTuL3nTBAoR8sB70K06uunQUEIIbIB1-nOR-OJ8GXW6c_"
-        login_param.appidAt3rd = "1400213425"
+        guard let arg = call.arguments as? NSDictionary else {
+            result(FlutterError(code: "no argument", message: "no argument", details: nil))
+            return
+        }
+        let identifier = arg["identifier"] as! String
+        let userSig = arg["userSig"] as! String
+        let appidAt3rd = arg["appidAt3rd"] as! String
+        login_param.identifier = identifier
+        login_param.userSig = userSig
+        login_param.appidAt3rd = appidAt3rd
         TIMManager.sharedInstance()?.login(login_param, succ: {
-            result("succ")
+            result(nil)
         }, fail: { (code, err) in
             result(FlutterError(code: String(code), message: err, details: nil))
         })

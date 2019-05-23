@@ -14,6 +14,9 @@ class TIMMessage {
   List<TIMElement> msg;
 
   int addElem(TIMElement elem) {
+    if (this.msg == null) {
+      this.msg = [];
+    }
     this.msg.add(elem);
     return this.msg.length - 1;
   }

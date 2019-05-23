@@ -1,12 +1,20 @@
 library main.dart;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tim_plugin/tim_plugin.dart';
+import 'dart:async';
 
-void main() => runApp(MyApp());
+
+void main() {
+  TimPlugin.initSdk(1400213425, '36862');
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  static StreamSubscription<List<TIMMessage>> subscription;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,7 +31,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'TIM Demo'),
+      routes: <String, WidgetBuilder>{
+        '/t_1': (BuildContext context) => ChatPage(title: 't_1'),
+        '/t_2': (BuildContext context) => ChatPage(title: 't_2')
+      },
     );
   }
 }
@@ -47,36 +59,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() async {
+  void login(String user, String userSig, {String appidAt3rd}) async {
     try {
-      await TimPlugin.initSdk(1400213425, '36862',
-          logLevel: LogLevel.debug, disableLogPrint: false);
+      await TimPlugin.login(user, userSig, appidAt3rd: appidAt3rd);
+      MyApp.subscription?.cancel();
+      MyApp.subscription = TimPlugin.addMessageListener().listen(_streamHandler);
+      Navigator.pushNamed(context, '/$user');
     } on PlatformException catch (e) {
-      print(e.code);
-      print(e.message);
-      print(e.details);
+      print('code: ${e.code}, message: ${e.message}');
     }
-
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
   }
+  void _streamHandler(List<TIMMessage> msgs) {
 
+  }
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -103,21 +100,124 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            Text('登陆'),
+            RaisedButton(
+              onPressed: () {
+                this.login(
+                    't_1',
+                    'eJxlz11PgzAUgOF7fgXhdsaUlu7DZBeNDqeyLYOZrd40hB6WioPKCoEt-nczppHEc-u8Jy'
+                        'fnbNm27WyC6DZOkqLKjTCtBse*sx3k3Pyh1kqK2AhSyn8IjVYliDg1UHboUkoxQv1GSciNStVPYYTbw6PMRHfhuu0h'
+                        'hF3iYdpP1L7DxWx9--TYnIK3PDmxNsyeJxstF5F-WNEdDBhwICH361IO*Sedr5liquHF9mXVhu8*VGZYbYNdHNWZZjk'
+                        'ZLR-I-ON1NuB7wpcpm057J406wO87Yw*P8WTU0xrKoyryLsDIpS4m6DKO9WV9A1QQXJ0_',
+                    appidAt3rd: '1400213425');
+              },
+              child: Text('t_1'),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
+            RaisedButton(
+              onPressed: () {
+                this.login(
+                    't_2',
+                    'eJxlj8FOhDAURfd8BWGrMW2hDpi4KHUMI5pIZmDBpiHTQjvjQC1VB'
+                        'OO-G1EjiW97zs29791xXdfb3W8vqv2*e2kts6MWnnvlesA7-4NaK84qy3zD-0HxppURrKqt'
+                        'MDOEGGMEwNJRXLRW1erHsAwtYM*PbG74TgcAIOgHCC8V1czwYZ3TTXYjRylpHB-KYU3gKcF'
+                        'hFcGByGFlziJak2LrH8lu0vypJ5smx7eP5ZjRcqWEDA9xQTuZpFMaIZwmWTy1zXMRXGpzl2'
+                        'fXi0qrTuL3nTBAoR8sB70K06uunQUEIIbIB1-nOR-OJ8GXW6c_',
+                    appidAt3rd: '1400213425');
+              },
+              child: Text('t_2'),
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class ChatPage extends StatefulWidget {
+  ChatPage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  String text;
+  final _msgList = <TIMMessage>[];
+  final _controller = TextEditingController();
+  Future<void> sendMessage(String text) async {
+    final message = TIMMessage();
+    final elem = TIMTextElement();
+    elem.text = text;
+    message.addElem(elem);
+    setState(() {
+      _msgList.add(message);
+      _controller.text = '';
+    });
+    String receiver = widget.title == 't_1' ? 't_2' : 't_1';
+    return await TimPlugin.sendMessage(
+        message, TIMConversationType.TIM_C2C, receiver);
+  }
+
+  Widget _buildRow(TIMMessage message) {
+    final elem = message.getElem(0) as TIMTextElement;
+    return ListTile(
+      title: Text(
+        elem.text,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: ListView.builder(
+              itemCount: _msgList.length,
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, i) {
+                return _buildRow(_msgList[i]);
+              }
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: RaisedButton(
+                  onPressed: () async {
+                    await sendMessage(_controller.text);
+                  },
+                  child: Text('发送'),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
+    MyApp.subscription?.cancel();
   }
 }
