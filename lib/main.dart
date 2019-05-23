@@ -1,7 +1,7 @@
+library main.dart;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tim_plugin/tim_plugin.dart';
-import 'package:tim_plugin/types.dart';
 
 void main() => runApp(MyApp());
 
@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
+
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.

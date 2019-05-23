@@ -2,6 +2,7 @@ package com.youareok.tim_plugin
 
 import android.util.Log
 import com.tencent.imsdk.*
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -9,7 +10,8 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 
-class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandler {
+class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandler, EventChannel.StreamHandler, TIMMessageListener {
+
 
     companion object {
 
@@ -22,6 +24,9 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
             channel.setMethodCallHandler(TimPlugin(registrar))
         }
     }
+
+    private var mEventChannel: EventChannel? = null
+    private var mEventSink: EventChannel.EventSink? = null
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         Log.d("TimPlugin", "onMethodCall call.method:" + call.method)
@@ -159,13 +164,38 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
             }
 
             override fun onError(p0: Int, p1: String?) {
-                result.error(p0.toString(),p1,null)
+                result.error(p0.toString(), p1, null)
             }
         })
     }
 
     private fun addMessageListener(call: MethodCall, result: Result) {
+        initEventChannel()
+        TIMManager.getInstance().removeMessageListener(this)
+        TIMManager.getInstance().addMessageListener(this)
+    }
 
+    private fun initEventChannel() {
+        if (mEventChannel == null) {
+            mEventChannel = EventChannel(registrar.messenger(), EVENT_CHANNEL_NAME)
+            mEventChannel!!.setStreamHandler(this)
+        }
+    }
+
+
+    override fun onListen(p0: Any?, p1: EventChannel.EventSink?) {
+        mEventSink = p1
+    }
+
+    override fun onCancel(p0: Any?) {
+        mEventSink = null
+    }
+
+    override fun onNewMessages(p0: MutableList<TIMMessage>?): Boolean {
+        p0?.let {
+
+        }
+        return true
     }
 
 }

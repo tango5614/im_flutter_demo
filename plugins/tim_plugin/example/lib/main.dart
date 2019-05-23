@@ -13,7 +13,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
 
-  StreamSubscription _subscription;
   @override
   void initState() {
     super.initState();
@@ -26,9 +25,6 @@ class _MyAppState extends State<MyApp> {
     try {
       await TimPlugin.initSdk(1400213425, "36862");
       await TimPlugin.login('t_2', 'eJxlj8FOhDAURfd8BWGrMW2hDpi4KHUMI5pIZmDBpiHTQjvjQC1VBOO-G1EjiW97zs29791xXdfb3W8vqv2*e2kts6MWnnvlesA7-4NaK84qy3zD-0HxppURrKqtMDOEGGMEwNJRXLRW1erHsAwtYM*PbG74TgcAIOgHCC8V1czwYZ3TTXYjRylpHB-KYU3gKcFhFcGByGFlziJak2LrH8lu0vypJ5smx7eP5ZjRcqWEDA9xQTuZpFMaIZwmWTy1zXMRXGpzl2fXi0qrTuL3nTBAoR8sB70K06uunQUEIIbIB1-nOR-OJ8GXW6c_');
-      _subscription = TimPlugin.addMessageListener((text) {
-        print(text);
-      });
       final message = TIMMessage();
       final elem = TIMTextElement();
       elem.text = 'test';

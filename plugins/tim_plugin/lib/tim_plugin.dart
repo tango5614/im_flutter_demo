@@ -1,12 +1,17 @@
+library tim_plugin;
 import 'dart:async';
 import 'package:flutter/services.dart';
-part './types.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'types.dart';
+
+part 'tim_plugin.g.dart';
 
 class TimPlugin {
   static const MethodChannel _channel = const MethodChannel('tim_plugin');
 
   static const EventChannel _eventChannel =
-      const EventChannel("tim_plugin_event");
+  const EventChannel("tim_plugin_event");
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -51,8 +56,10 @@ class TimPlugin {
     return await _channel.invokeMethod('sendMessage', params);
   }
 
-  static StreamSubscription<dynamic> addMessageListener(Function callback) {
-    return _eventChannel.receiveBroadcastStream().listen(callback);
+  static Stream<List<TIMMessage>> addMessageListener() {
+    return _eventChannel.receiveBroadcastStream().map((call) {
+      final callMap = call as Map<String, Map<String, dynamic>>;
+    });
   }
 
   static Future<void> createGroup(List<String> members, String name) async {}
