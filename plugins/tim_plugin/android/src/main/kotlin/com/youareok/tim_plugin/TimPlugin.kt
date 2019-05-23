@@ -15,12 +15,9 @@ import java.io.Serializable
 
 class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandler, EventChannel.StreamHandler, TIMMessageListener {
 
-
     companion object {
-
         private const val METHOD_CHANNEL_NAME = "tim_plugin"
         private const val EVENT_CHANNEL_NAME = "tim_plugin_event"
-
         @JvmStatic
         fun registerWith(registrar: Registrar) {
             val channel = MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME)
@@ -46,19 +43,15 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
             "logout" -> {
                 logout(call, result)
             }
-
             "sendMessage" -> {
                 sendMessage(call, result)
             }
-
             "addMessageListener" -> {
                 addMessageListener(call, result)
             }
-
             "createGroup" -> {
                 result.notImplemented()
             }
-
             else -> {
                 result.notImplemented()
             }
@@ -245,7 +238,7 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
 }
 
 open class PTIMElement() : Serializable
-class PTIMTextElement(val text: String) : PTIMElement()
+class PTIMTextElement(val text: String, val type: Int = 0) : PTIMElement()
 /**
  *  int type;
 int size;
@@ -254,7 +247,7 @@ int width;
 String url;
 String uuid;
  */
-class PTIMImageElement(val images: List<PTIMImage>) : PTIMElement()
+class PTIMImageElement(val images: List<PTIMImage>, val type: Int = 1) : PTIMElement()
 
 class PTIMImage(val type: Int, val size: Int, val height: Int, val width: Int,
                 val url: String, val uuid: String) : Serializable

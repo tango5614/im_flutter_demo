@@ -70,12 +70,17 @@ class TimPlugin {
     _channel.invokeMethod("addMessageListener");
     return _eventChannel
         .receiveBroadcastStream()
-        .map((map) => json.decode(json.encode(map)))
+        .map((map) {
+          if (map is String)
+            return json.decode(map);
+          else
+            return json.decode(json.encode(map));
+        })
         .where((map) => (map[EVENT_NAME] as String) == EVENT_NAME_NEW_MESSAGE)
-        .map((map) =>
-        (map['data']['msg'] as List)
+        .map((map) => (map['data']['msg'] as List)
             ?.map((e) => e == null ? null : TIMMessage.fromJson(e))
             ?.toList());
   }
+
   static Future<void> createGroup(List<String> members, String name) async {}
 }
