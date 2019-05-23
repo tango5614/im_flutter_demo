@@ -1,6 +1,8 @@
 package com.youareok.tim_plugin
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.tencent.imsdk.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -8,6 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import java.io.Serializable
 
 
 class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandler, EventChannel.StreamHandler, TIMMessageListener {
@@ -173,6 +176,7 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
         initEventChannel()
         TIMManager.getInstance().removeMessageListener(this)
         TIMManager.getInstance().addMessageListener(this)
+        result.success(null)
     }
 
     private fun initEventChannel() {
@@ -194,8 +198,70 @@ class TimPlugin private constructor(val registrar: Registrar) : MethodCallHandle
     override fun onNewMessages(p0: MutableList<TIMMessage>?): Boolean {
         p0?.let {
 
+
+            mEventSink?.let {
+                val list = mutableListOf<PTIMMessage>()
+                p0.forEach {
+                    val msg = mutableListOf<PTIMElement>()
+                    for (i in 0 until it.elementCount) {
+                        val e = it.getElement(i.toInt())
+                        val mE = when {
+                            e is TIMTextElem -> {
+                                PTIMTextElement((e).text)
+                            }
+                            e is TIMImageElem -> {
+                                val images = mutableListOf<PTIMImage>()
+                                e.imageList.forEach {
+                                    images.add(PTIMImage(it.type.value(),
+                                            it.size.toInt(), it.height.toInt(), it.width.toInt(), it.url, it.uuid))
+                                }
+                                PTIMImageElement(images)
+                            }
+                            else -> {
+                                null
+                            }
+                        }
+                        mE?.let {
+                            msg.add(mE)
+                        }
+                    }
+                    list.add(PTIMMessage(it.sender, msg = msg, isSelf = it.isSelf))
+                }
+                val gson = Gson()
+                val jsonObject = JsonObject()
+                jsonObject.addProperty("event_name", "event_name_new_message")
+                jsonObject.add("data", JsonObject().apply {
+                    add("msg", gson.toJsonTree(list))
+                })
+                val json = gson.toJson(jsonObject)
+                it.success(json)
+                Log.d("onNewMessage", "reuslt:" + json)
+            }
         }
         return true
     }
 
+
 }
+
+open class PTIMElement() : Serializable
+class PTIMTextElement(val text: String) : PTIMElement()
+/**
+ *  int type;
+int size;
+int height;
+int width;
+String url;
+String uuid;
+ */
+class PTIMImageElement(val images: List<PTIMImage>) : PTIMElement()
+
+class PTIMImage(val type: Int, val size: Int, val height: Int, val width: Int,
+                val url: String, val uuid: String) : Serializable
+
+class PTIMMessage(val identifier: String, val msg: List<PTIMElement>, val isSelf: Boolean) : Serializable
+
+/**
+ * identifier、nickname、faceURL、customInfo
+ */
+class PTIMUserProfile(val identifier: String, val nickname: String, val faceURL: String, val customInfo: Map<String, ByteArray>) : Serializable
