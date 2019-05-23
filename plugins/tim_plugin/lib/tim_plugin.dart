@@ -66,15 +66,17 @@ class TimPlugin {
   ///    'data':{'msg':[
   ///    {TIMMessage.toJson格式}
   ///    ,{TIMMessage.toJson格式}]} }
-  static Future<Stream<List<TIMMessage>>> addMessageListener() async {
-    await _channel.invokeMethod("addMessageListener");
+  static Stream<List<TIMMessage>> addMessageListener() {
+    _channel.invokeMethod("addMessageListener");
     return _eventChannel
         .receiveBroadcastStream()
-        .cast<String>()
-        .map((str) => json.decode(str))
+        .map((test) {
+          print(test);
+          return new Map<String, dynamic>.from(test);
+        })
         .where((map) => (map[EVENT_NAME] as String) == EVENT_NAME_NEW_MESSAGE)
         .map((map) =>
-        (map['data']['msg'] as List)
+        (map['data']['msg'].cast<List>())
             ?.map((e) => e == null ? null : TIMMessage.fromJson(e))
             ?.toList());
   }

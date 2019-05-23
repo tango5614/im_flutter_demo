@@ -24,6 +24,8 @@ public class SwiftTimPlugin: NSObject, FlutterPlugin {
             login(call: call, result: result)
         case "sendMessage":
             sendMessage(call: call, result: result)
+        case "addMessageListener":
+            result(nil)
         default:
             result(FlutterError(code: "no method", message: "no method", details: nil))
         }
@@ -140,22 +142,64 @@ extension SwiftTimPlugin: FlutterStreamHandler {
 class IMPMessageListener: NSObject, TIMMessageListener {
     var arguments: Any?
     var events: FlutterEventSink?
-    
     func onNewMessage(_ msgs: [Any]!) {
+        var dic: [String: Any] = ["event_name" : "event_name_new_message"]
         if let msgs = msgs as? [TIMMessage] {
-            for msgItem in msgs {
-                for index in 0...(msgItem.elemCount() - 1) {
-                    let msgElem = msgItem.getElem(index)
-                    // 文本
-                    if let elem = msgElem as? TIMTextElem {
-                        events?(elem.text)
-                    }
-                    // 图片
-                    if let elem = msgElem as? TIMImageElem {
-                        events?(elem.path)
+            let msgDicArr = msgs.map { (msgItem) -> NSMutableDictionary in
+                let dataDic: NSMutableDictionary = [
+                    "isSelf": msgItem.isSelf(),
+                    "identifier": msgItem.sender()
+                ]
+                let elems: NSMutableArray = []
+                
+                for index in 0...msgItem.elemCount() {
+                    if let elem = msgItem.getElem(index) as? TIMTextElem {
+                        let elemItem: NSDictionary = [
+                            "type": 0,
+                            "text": elem.text ?? ""
+                        ]
+                        elems.add(elemItem)
+                    } else if let elem = msgItem.getElem(index) as? TIMImageElem {
+                        let elemItem: NSDictionary = [
+                            "type": 1,
+                            "path": elem.path,
+                            "compressionLevel": elem.level.rawValue
+                        ]
+                        elems.add(elemItem)
                     }
                 }
+                dataDic["msg"] = elems
+                return dataDic
             }
+            dic["data"] = [
+                "msg": msgDicArr
+            ]
+            events?(dic)
+//            var dic: NSDictionary = ["event_name" : "event_name_new_message"]
+//            var msg: [NSDictionary] = []
+//            for msgItem in msgs {
+//                var msgJson = ["": ]
+//                for index in 0...(msgItem.elemCount() - 1) {
+//                    let msgElem = msgItem.getElem(index)
+//                    // 文本
+//                    if let elem = msgElem as? TIMTextElem {
+//                        let elemItem: NSDictionary = [
+//                            "type": 0,
+//                            "text": elem.text ?? ""
+//                        ]
+//                        msg.append(elemItem)
+//                    }
+//                    // 图片
+//                    if let elem = msgElem as? TIMImageElem {
+//                        let elemItem: NSDictionary = [
+//                            "type": 1,
+//                            "text": elem.path
+//                        ]
+//                        msg.append(elemItem)
+//                    }
+//                }
+//            }
+//            dic.setValue(["msg": msgs], forKey: "data")
         }
     }
 }

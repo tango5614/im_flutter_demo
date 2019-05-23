@@ -62,15 +62,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void login(String user, String userSig, {String appidAt3rd}) async {
     try {
       await TimPlugin.login(user, userSig, appidAt3rd: appidAt3rd);
-      MyApp.subscription?.cancel();
-      MyApp.subscription = TimPlugin.addMessageListener().listen(_streamHandler);
+      final stream = TimPlugin.addMessageListener();
+      MyApp.subscription = stream.listen(_streamHandler);
       Navigator.pushNamed(context, '/$user');
     } on PlatformException catch (e) {
       print('code: ${e.code}, message: ${e.message}');
     }
   }
   void _streamHandler(List<TIMMessage> msgs) {
-
+    final elem = msgs[0].getElem(0) as TIMTextElement;
+    print(elem.text);
   }
   @override
   Widget build(BuildContext context) {
@@ -218,6 +219,5 @@ class _ChatPageState extends State<ChatPage> {
     // TODO: implement dispose
     super.dispose();
     _controller.dispose();
-    MyApp.subscription?.cancel();
   }
 }
