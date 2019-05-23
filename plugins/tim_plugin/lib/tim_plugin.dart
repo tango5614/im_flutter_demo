@@ -1,14 +1,19 @@
 library tim_plugin;
+
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'types.dart';
-
 part 'tim_plugin.g.dart';
+
+part 'types.dart';
 
 class TimPlugin {
   static const MethodChannel _channel = const MethodChannel('tim_plugin');
+  static const EVENT_NAME = "event_name";
+  static const EVENT_NAME_NEW_MESSAGE = "event_name_new_message";
 
   static const EventChannel _eventChannel =
   const EventChannel("tim_plugin_event");
@@ -47,7 +52,8 @@ class TimPlugin {
     return await _channel.invokeMethod('logout');
   }
 
-  static Future<void> sendMessage(TIMMessage message, int type, String receiver) async {
+  static Future<void> sendMessage(TIMMessage message, int type,
+      String receiver) async {
     final params = {
       'message': message.getParameterList(),
       'type': type,
@@ -56,10 +62,21 @@ class TimPlugin {
     return await _channel.invokeMethod('sendMessage', params);
   }
 
-  static Stream<List<TIMMessage>> addMessageListener() {
-    return _eventChannel.receiveBroadcastStream().map((call) {
-      final callMap = call as Map<String, Map<String, dynamic>>;
-    });
+  ///客户端代码： 发送格式:  {'event_name':'event_name_new_message',
+  ///    'data':{'msg':[
+  ///    {TIMMessage.toJson格式}
+  ///    ,{TIMMessage.toJson格式}]} }
+  static Future<Stream<List<TIMMessage>>> addMessageListener() async {
+    await _channel.invokeMethod("addMessageListener");
+    return _eventChannel
+        .receiveBroadcastStream()
+        .cast<String>()
+        .map((str) => json.decode(str))
+        .where((map) => (map[EVENT_NAME] as String) == EVENT_NAME_NEW_MESSAGE)
+        .map((map) =>
+        (map['data']['msg'] as List)
+            ?.map((e) => e == null ? null : TIMMessage.fromJson(e))
+            ?.toList());
   }
 
   static Future<void> createGroup(List<String> members, String name) async {}

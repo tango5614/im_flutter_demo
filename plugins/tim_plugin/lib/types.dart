@@ -8,10 +8,16 @@ class LogLevel {
   static const error = 6;
 }
 
-@JsonSerializable(explicitToJson: true,)
+@JsonSerializable(
+  explicitToJson: true,
+)
 class TIMMessage {
   @JsonKey()
   List<TIMElement> msg;
+  bool isSelf;
+
+  //消息发送者的id
+  String identifier;
 
   int addElem(TIMElement elem) {
     this.msg.add(elem);
@@ -32,6 +38,14 @@ class TIMMessage {
     }).toList();
     return list;
   }
+
+  TIMMessage() {
+    msg = [];
+  }
+
+  factory TIMMessage.fromJson(Map<String, dynamic> json) {
+    return _$TIMMessageFromJson(json);
+  }
 }
 
 @JsonSerializable(generateToJsonFunction: false, createFactory: false)
@@ -45,7 +59,7 @@ abstract class TIMElement {
   factory TIMElement.fromJson(Map<String, dynamic> json) {
     switch (json['type']) {
       case TIMElementType.text:
-        return TIMTextElement.formJson(json);
+        return TIMTextElement.fromJson(json);
       case TIMElementType.image:
         return TIMImageElement.fromJson(json);
       default:
@@ -69,7 +83,7 @@ class TIMTextElement extends TIMElement {
 
   TIMTextElement({this.text});
 
-  factory TIMTextElement.formJson(Map<String, dynamic> json) {
+  factory TIMTextElement.fromJson(Map<String, dynamic> json) {
     return _$TIMTextElementFromJson(json);
   }
 
@@ -85,6 +99,7 @@ class TIMImageElement extends TIMElement {
   final int _type = TIMElementType.image;
   String path;
   int compressionLevel;
+  List<TIMImage> images;
 
   @override
   Map<String, dynamic> getParameters() {
@@ -119,4 +134,14 @@ class TIMConversationType {
 
   /// 系统消息
   static const TIM_SYSTEM = 3;
+}
+
+@JsonSerializable()
+class TIMImage {
+  int type;
+  int size;
+  int height;
+  int width;
+  String url;
+  String uuid;
 }
